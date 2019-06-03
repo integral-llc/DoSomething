@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.btnStartStop = new System.Windows.Forms.Button();
             this.tmrWorker = new System.Windows.Forms.Timer(this.components);
             this.numStopAfter = new System.Windows.Forms.NumericUpDown();
@@ -88,7 +89,7 @@
             // 
             this.tmrStop.Tick += new System.EventHandler(this.TmrStop_Tick);
             // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -96,9 +97,10 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.numStopAfter);
             this.Controls.Add(this.btnStartStop);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Text = "Do Something";
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).EndInit();
             this.ResumeLayout(false);
