@@ -6,11 +6,11 @@ using System.Windows.Forms;
 
 namespace DoSomethingEx
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         private Point _start, _end;
         private int _curIndex;
-        private List<Point> _points = new List<Point>();
+        private readonly List<Point> _points = new List<Point>();
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -24,7 +24,7 @@ namespace DoSomethingEx
         private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
         private const int MOUSEEVENTF_RIGHTUP = 0x10;
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
         }
@@ -54,7 +54,6 @@ namespace DoSomethingEx
             int numerator = longest >> 1;
             for (int i = 0; i <= longest; i++)
             {
-                //putpixel(x, y, color);
                 yield return new Point(x, y);
                 numerator += shortest;
                 if (!(numerator < longest))
@@ -71,22 +70,22 @@ namespace DoSomethingEx
             }
         }
 
-        private double Distance(Point p1, Point p2)
+        private static double Distance(Point p1, Point p2)
         {
             var dy = p2.Y - p1.Y;
             var dx = p2.X - p1.X;
             return Math.Sqrt(dx * dx + dy * dy);
         }
 
-        private Random R = new Random();
+        private readonly Random R = new Random();
+
         private Point GetPoint(Point p, double minDistance)
         {
             Rectangle rc = Screen.PrimaryScreen.WorkingArea;
-            int x, y;
             while (true)
             {
-                x = R.Next(rc.Left, rc.Right);
-                y = R.Next(rc.Top, rc.Bottom);
+                var x = R.Next(rc.Left, rc.Right);
+                var y = R.Next(rc.Top, rc.Bottom);
                 Point pNew = new Point(x, y);
                 bool ok = Distance(pNew, p) >= minDistance;
                 if (ok)
