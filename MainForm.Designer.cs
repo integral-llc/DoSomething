@@ -40,9 +40,10 @@
             // 
             // btnStartStop
             // 
-            this.btnStartStop.Location = new System.Drawing.Point(12, 12);
+            this.btnStartStop.Location = new System.Drawing.Point(24, 23);
+            this.btnStartStop.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.btnStartStop.Name = "btnStartStop";
-            this.btnStartStop.Size = new System.Drawing.Size(75, 23);
+            this.btnStartStop.Size = new System.Drawing.Size(150, 44);
             this.btnStartStop.TabIndex = 0;
             this.btnStartStop.Tag = "0";
             this.btnStartStop.Text = "Start";
@@ -56,7 +57,8 @@
             // 
             // numStopAfter
             // 
-            this.numStopAfter.Location = new System.Drawing.Point(98, 40);
+            this.numStopAfter.Location = new System.Drawing.Point(196, 77);
+            this.numStopAfter.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.numStopAfter.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -68,7 +70,7 @@
             0,
             0});
             this.numStopAfter.Name = "numStopAfter";
-            this.numStopAfter.Size = new System.Drawing.Size(120, 20);
+            this.numStopAfter.Size = new System.Drawing.Size(240, 31);
             this.numStopAfter.TabIndex = 1;
             this.numStopAfter.Value = new decimal(new int[] {
             60,
@@ -79,9 +81,10 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 42);
+            this.label1.Location = new System.Drawing.Point(26, 81);
+            this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(79, 13);
+            this.label1.Size = new System.Drawing.Size(161, 25);
             this.label1.TabIndex = 2;
             this.label1.Text = "Stop After (min)";
             // 
@@ -91,17 +94,19 @@
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(333, 153);
+            this.ClientSize = new System.Drawing.Size(666, 294);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.numStopAfter);
             this.Controls.Add(this.btnStartStop);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MainForm";
             this.Text = "Do Something";
+            this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

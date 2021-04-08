@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DoSomething.Properties;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -114,6 +115,11 @@ namespace DoSomethingEx
             btnStartStop.PerformClick();
         }
 
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            numStopAfter.Value = Settings.Default.LastTimeout;
+        }
+
         private void Button1_Click(object sender, EventArgs e)
         {
             int tag = Convert.ToInt32(btnStartStop.Tag);
@@ -129,6 +135,8 @@ namespace DoSomethingEx
                 var ts = TimeSpan.FromMinutes((double) numStopAfter.Value);
                 tmrStop.Interval = (int) ts.TotalMilliseconds;
                 tmrStop.Start();
+                Settings.Default.LastTimeout = (int)numStopAfter.Value;
+                Settings.Default.Save();
             }
             else
             {
