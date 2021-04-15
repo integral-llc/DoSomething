@@ -97,7 +97,7 @@ namespace DoSomethingEx
         private void TmrWorker_Tick(object sender, EventArgs e)
         {
             Point p = _points[_curIndex];
-            SetCursorPos(p.X, p.Y);
+            //SetCursorPos(p.X, p.Y);
             _curIndex++;
             if (_curIndex >= _points.Count)
             {
