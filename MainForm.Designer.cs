@@ -100,7 +100,6 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.numStopAfter);
             this.Controls.Add(this.btnStartStop);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.MaximizeBox = false;
             this.MinimizeBox = false;

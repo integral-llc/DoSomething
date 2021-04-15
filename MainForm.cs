@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -118,6 +119,8 @@ namespace DoSomethingEx
         private void MainForm_Load(object sender, EventArgs e)
         {
             numStopAfter.Value = Settings.Default.LastTimeout;
+            var appIcon = new Icon(File.OpenRead("appIcon.ico"));
+            Icon = appIcon;
         }
 
         private void Button1_Click(object sender, EventArgs e)
