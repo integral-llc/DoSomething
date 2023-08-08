@@ -1,7 +1,9 @@
-﻿using DoSomething.Properties;
+using DoSomething.Properties;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -97,18 +99,15 @@ namespace DoSomethingEx
 
         private void TmrWorker_Tick(object sender, EventArgs e)
         {
-            Point p = _points[_curIndex];
-            //SetCursorPos(p.X, p.Y);
             _curIndex++;
-            if (_curIndex >= _points.Count)
-            {
-                _points.Clear();
-                _start = _end;
-                _end = GetPoint(_start, 300);
-                _points.AddRange(YieldLinePoints(_start.X, _start.Y, _end.X, _end.Y));
-                _curIndex = 0;
-                mouse_event(MOUSEEVENTF_LEFTUP | MOUSEEVENTF_LEFTDOWN, (uint) _start.X, (uint) _start.Y, 0, 0);
-            }
+            if (_curIndex < _points.Count) return;
+
+            _points.Clear();
+            _start = _end;
+            _end = GetPoint(_start, 300);
+            _points.AddRange(YieldLinePoints(_start.X, _start.Y, _end.X, _end.Y));
+            _curIndex = 0;
+            mouse_event(MOUSEEVENTF_LEFTUP | MOUSEEVENTF_LEFTDOWN, (uint) _start.X, (uint) _start.Y, 0, 0);
         }
 
         private void TmrStop_Tick(object sender, EventArgs e)
@@ -121,6 +120,69 @@ namespace DoSomethingEx
             numStopAfter.Value = Settings.Default.LastTimeout;
             var appIcon = new Icon(File.OpenRead("appIcon.ico"));
             Icon = appIcon;
+        }
+
+        private void CalculateInInterval(int hours)
+        {
+            numStopAfter.Value = hours * 60;
+        }
+
+        private void CreateInMenuItems()
+        {
+            const int maxHours = 9;
+            var menuItemParent = inToolStripMenuItem;
+            Debug.Assert(menuItemParent != null, nameof(menuItemParent) + " != null");
+            menuItemParent.DropDownItems.Clear();
+            for (int i = 0; i < maxHours; i++)
+            {
+                var newMenuItem = new ToolStripMenuItem
+                {
+                    Text = $"In {i + 1} hours",
+                    Tag = i + 1,
+                };
+                newMenuItem.Click += (o, args) => CalculateInInterval(int.Parse(((ToolStripMenuItem)o).Tag.ToString()));
+                menuItemParent.DropDownItems.Add(newMenuItem);
+            }
+        }
+
+        public static DateTime RoundUp(DateTime dt, TimeSpan d)
+        {
+            var modTicks = dt.Ticks % d.Ticks;
+            var delta = modTicks != 0 ? d.Ticks - modTicks : 0;
+            return new DateTime(dt.Ticks + delta, dt.Kind);
+        }
+
+        private void CalculateDifference(DateTime to)
+        {
+            var minutes = (int)(to - DateTime.Now).TotalMinutes;
+            numStopAfter.Text = minutes.ToString();
+        }
+
+        private void CreateAtMenuItems()
+        {
+            var now = DateTime.Now;
+            var midnight = DateTime.Today.AddHours(23).AddMinutes(59);
+            var interval = TimeSpan.FromMinutes(30);
+            var start = RoundUp(now, interval);
+            var menuItemParent = atToolStripMenuItem;
+            menuItemParent.DropDownItems.Clear();
+            while (start < midnight)
+            {
+                var newMenuItem = new ToolStripMenuItem
+                {
+                    Text = $"At {start:t}",
+                    Tag = start.ToString(CultureInfo.InvariantCulture),
+                };
+                newMenuItem.Click += (o, args) => CalculateDifference(DateTime.Parse(((ToolStripMenuItem)o).Tag.ToString()));
+                menuItemParent.DropDownItems.Add(newMenuItem);
+                start = start.Add(interval);
+            }
+        }
+
+        private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            CreateInMenuItems();
+            CreateAtMenuItems();
         }
 
         private void Button1_Click(object sender, EventArgs e)
@@ -145,6 +207,7 @@ namespace DoSomethingEx
             {
                 tmrWorker.Stop();
                 tmrStop.Stop();
+                lblTimeRemaining.Text = "Time remaining: N/A";
                 WindowState = FormWindowState.Normal;
             }
 
