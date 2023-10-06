@@ -32,19 +32,18 @@ namespace DoSomethingEx
             this.btnStartStop = new System.Windows.Forms.Button();
             this.tmrWorker = new System.Windows.Forms.Timer(this.components);
             this.numStopAfter = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.tmrStop = new System.Windows.Forms.Timer(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.inToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.atToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label1 = new System.Windows.Forms.Label();
-            this.tmrStop = new System.Windows.Forms.Timer(this.components);
-            this.lblTimeRemaining = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnStartStop
             // 
-            this.btnStartStop.Location = new System.Drawing.Point(335, 58);
+            this.btnStartStop.Location = new System.Drawing.Point(335, 65);
             this.btnStartStop.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnStartStop.Name = "btnStartStop";
             this.btnStartStop.Size = new System.Drawing.Size(112, 35);
@@ -83,28 +82,6 @@ namespace DoSomethingEx
             0,
             0});
             // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.inToolStripMenuItem,
-            this.atToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(103, 68);
-            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
-            // 
-            // inToolStripMenuItem
-            // 
-            this.inToolStripMenuItem.Name = "inToolStripMenuItem";
-            this.inToolStripMenuItem.Size = new System.Drawing.Size(102, 32);
-            this.inToolStripMenuItem.Text = "In";
-            // 
-            // atToolStripMenuItem
-            // 
-            this.atToolStripMenuItem.Name = "atToolStripMenuItem";
-            this.atToolStripMenuItem.Size = new System.Drawing.Size(102, 32);
-            this.atToolStripMenuItem.Text = "At";
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -119,21 +96,33 @@ namespace DoSomethingEx
             // 
             this.tmrStop.Tick += new System.EventHandler(this.TmrStop_Tick);
             // 
-            // lblTimeRemaining
+            // contextMenuStrip1
             // 
-            this.lblTimeRemaining.AutoSize = true;
-            this.lblTimeRemaining.Location = new System.Drawing.Point(24, 114);
-            this.lblTimeRemaining.Name = "lblTimeRemaining";
-            this.lblTimeRemaining.Size = new System.Drawing.Size(157, 20);
-            this.lblTimeRemaining.TabIndex = 3;
-            this.lblTimeRemaining.Text = "Time Remaining: N/A";
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.inToolStripMenuItem,
+            this.atToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(241, 101);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // inToolStripMenuItem
+            // 
+            this.inToolStripMenuItem.Name = "inToolStripMenuItem";
+            this.inToolStripMenuItem.Size = new System.Drawing.Size(240, 32);
+            this.inToolStripMenuItem.Text = "In";
+            // 
+            // atToolStripMenuItem
+            // 
+            this.atToolStripMenuItem.Name = "atToolStripMenuItem";
+            this.atToolStripMenuItem.Size = new System.Drawing.Size(102, 32);
+            this.atToolStripMenuItem.Text = "At";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(500, 184);
-            this.Controls.Add(this.lblTimeRemaining);
+            this.ClientSize = new System.Drawing.Size(500, 235);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.numStopAfter);
             this.Controls.Add(this.btnStartStop);
@@ -160,7 +149,6 @@ namespace DoSomethingEx
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem inToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem atToolStripMenuItem;
-        private System.Windows.Forms.Label lblTimeRemaining;
     }
 }
 
