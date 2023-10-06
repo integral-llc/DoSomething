@@ -132,7 +132,11 @@ namespace DoSomethingEx
             const int maxHours = 9;
             var menuItemParent = inToolStripMenuItem;
             Debug.Assert(menuItemParent != null, nameof(menuItemParent) + " != null");
+<<<<<<< HEAD
+
+=======
             menuItemParent.DropDownItems.Clear();
+>>>>>>> 518634cc5973b54ba0885324b5712e208dfbfe48
             for (int i = 0; i < maxHours; i++)
             {
                 var newMenuItem = new ToolStripMenuItem
@@ -161,11 +165,18 @@ namespace DoSomethingEx
         private void CreateAtMenuItems()
         {
             var now = DateTime.Now;
+<<<<<<< HEAD
+            var midnight = new DateTime(now.Year, now.Month, now.Day, 23, 59, 0);
+            var interval = TimeSpan.FromMinutes(30);
+            var start = RoundUp(now, interval);
+            var menuItemParent = atToolStripMenuItem;
+=======
             var midnight = DateTime.Today.AddHours(23).AddMinutes(59);
             var interval = TimeSpan.FromMinutes(30);
             var start = RoundUp(now, interval);
             var menuItemParent = atToolStripMenuItem;
             menuItemParent.DropDownItems.Clear();
+>>>>>>> 518634cc5973b54ba0885324b5712e208dfbfe48
             while (start < midnight)
             {
                 var newMenuItem = new ToolStripMenuItem
