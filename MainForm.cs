@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using DoSomething;
 
 namespace DoSomethingEx
 {
@@ -28,9 +29,17 @@ namespace DoSomethingEx
         private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
         private const int MOUSEEVENTF_RIGHTUP = 0x10;
 
+        private long IdleTickSeconds;
+
+        readonly GlobalKeyboardHook _globalKeyboardHook;
+
         public MainForm()
         {
             InitializeComponent();
+
+            _globalKeyboardHook = new GlobalKeyboardHook();
+            _globalKeyboardHook.KeyboardPressed += HandleGlobalKeyboardPressEvent;
+            _globalKeyboardHook.Hook();
         }
 
         public IEnumerable<Point> YieldLinePoints(int x, int y, int x2, int y2)
@@ -99,15 +108,21 @@ namespace DoSomethingEx
 
         private void TmrWorker_Tick(object sender, EventArgs e)
         {
-            _curIndex++;
-            if (_curIndex < _points.Count) return;
+            //_curIndex++;
+            //if (_curIndex < _points.Count) return;
 
-            _points.Clear();
-            _start = _end;
-            _end = GetPoint(_start, 300);
-            _points.AddRange(YieldLinePoints(_start.X, _start.Y, _end.X, _end.Y));
-            _curIndex = 0;
-            mouse_event(MOUSEEVENTF_LEFTUP | MOUSEEVENTF_LEFTDOWN, (uint) _start.X, (uint) _start.Y, 0, 0);
+            //_points.Clear();
+            //_start = _end;
+            //_end = GetPoint(_start, 300);
+            //_points.AddRange(YieldLinePoints(_start.X, _start.Y, _end.X, _end.Y));
+            //_curIndex = 0;
+            if (IdleTickSeconds > 5)
+            {
+                mouse_event(MOUSEEVENTF_LEFTUP | MOUSEEVENTF_LEFTDOWN, (uint)_start.X, (uint)_start.Y, 0, 0);
+                Debug.WriteLine("Perform click");
+            }
+
+            IdleTickSeconds++;
         }
 
         private void TmrStop_Tick(object sender, EventArgs e)
@@ -182,6 +197,17 @@ namespace DoSomethingEx
         {
             CreateInMenuItems();
             CreateAtMenuItems();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _globalKeyboardHook.Unhook();
+        }
+
+        private void HandleGlobalKeyboardPressEvent(object sender, EventArgs arg)
+        {
+            IdleTickSeconds = 0;
+            Debug.WriteLine("Keyboard touch");
         }
 
         private void Button1_Click(object sender, EventArgs e)
