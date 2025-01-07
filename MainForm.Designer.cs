@@ -1,4 +1,4 @@
-﻿namespace DoSomethingEx
+namespace DoSomethingEx
 {
     partial class MainForm
     {
@@ -32,6 +32,11 @@
             this.btnStartStop = new System.Windows.Forms.Button();
             this.tmrWorker = new System.Windows.Forms.Timer(this.components);
             this.numStopAfter = new System.Windows.Forms.NumericUpDown();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.inToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.atToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label1 = new System.Windows.Forms.Label();
+            this.tmrStop = new System.Windows.Forms.Timer(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.inToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.atToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -81,6 +86,42 @@
             0,
             0,
             0});
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.inToolStripMenuItem,
+            this.atToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(103, 68);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // inToolStripMenuItem
+            // 
+            this.inToolStripMenuItem.Name = "inToolStripMenuItem";
+            this.inToolStripMenuItem.Size = new System.Drawing.Size(102, 32);
+            this.inToolStripMenuItem.Text = "In";
+            // 
+            // atToolStripMenuItem
+            // 
+            this.atToolStripMenuItem.Name = "atToolStripMenuItem";
+            this.atToolStripMenuItem.Size = new System.Drawing.Size(102, 32);
+            this.atToolStripMenuItem.Text = "At";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(20, 65);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(121, 20);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Stop After (min)";
+            // 
+            // tmrStop
+            // 
+            this.tmrStop.Tick += new System.EventHandler(this.TmrStop_Tick);
             // 
             // contextMenuStrip1
             // 

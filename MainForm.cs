@@ -1,4 +1,4 @@
-﻿using DoSomething.Properties;
+using DoSomething.Properties;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
