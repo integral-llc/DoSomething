@@ -40,6 +40,8 @@ namespace DoSomethingEx
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.inToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.atToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label1 = new System.Windows.Forms.Label();
+            this.tmrStop = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -128,13 +130,13 @@ namespace DoSomethingEx
             this.inToolStripMenuItem,
             this.atToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(241, 101);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(103, 68);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
             // inToolStripMenuItem
             // 
             this.inToolStripMenuItem.Name = "inToolStripMenuItem";
-            this.inToolStripMenuItem.Size = new System.Drawing.Size(240, 32);
+            this.inToolStripMenuItem.Size = new System.Drawing.Size(102, 32);
             this.inToolStripMenuItem.Text = "In";
             // 
             // atToolStripMenuItem
@@ -142,6 +144,20 @@ namespace DoSomethingEx
             this.atToolStripMenuItem.Name = "atToolStripMenuItem";
             this.atToolStripMenuItem.Size = new System.Drawing.Size(102, 32);
             this.atToolStripMenuItem.Text = "At";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(20, 65);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(121, 20);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Stop After (min)";
+            // 
+            // tmrStop
+            // 
+            this.tmrStop.Tick += new System.EventHandler(this.TmrStop_Tick);
             // 
             // MainForm
             // 
