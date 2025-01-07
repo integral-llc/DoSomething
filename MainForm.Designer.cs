@@ -37,6 +37,9 @@ namespace DoSomethingEx
             this.atToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.tmrStop = new System.Windows.Forms.Timer(this.components);
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.inToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.atToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -117,6 +120,28 @@ namespace DoSomethingEx
             // tmrStop
             // 
             this.tmrStop.Tick += new System.EventHandler(this.TmrStop_Tick);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.inToolStripMenuItem,
+            this.atToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(241, 101);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // inToolStripMenuItem
+            // 
+            this.inToolStripMenuItem.Name = "inToolStripMenuItem";
+            this.inToolStripMenuItem.Size = new System.Drawing.Size(240, 32);
+            this.inToolStripMenuItem.Text = "In";
+            // 
+            // atToolStripMenuItem
+            // 
+            this.atToolStripMenuItem.Name = "atToolStripMenuItem";
+            this.atToolStripMenuItem.Size = new System.Drawing.Size(102, 32);
+            this.atToolStripMenuItem.Text = "At";
             // 
             // MainForm
             // 
