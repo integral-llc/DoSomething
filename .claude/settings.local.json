@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(msbuild:*)",
+      "Bash(where:*)",
+      "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe\" DoSomething.sln /p:Configuration=Debug /v:minimal)",
+      "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe\" DoSomething.sln //p:Configuration=Debug //v:minimal)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

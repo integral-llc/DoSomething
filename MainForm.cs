@@ -30,8 +30,13 @@ namespace DoSomethingEx
         private const int MOUSEEVENTF_RIGHTUP = 0x10;
 
         private long IdleTickSeconds;
+        private bool _isMouseMovementPaused;
+        private bool _isRunning;
+        private bool _ignoreNextMouseMove;
+        private const int IDLE_THRESHOLD_TO_RESUME = 30; // Resume after 30 seconds of idle time
 
         readonly GlobalKeyboardHook _globalKeyboardHook;
+        readonly GlobalMouseHook _globalMouseHook;
 
         public MainForm()
         {
@@ -40,46 +45,122 @@ namespace DoSomethingEx
             _globalKeyboardHook = new GlobalKeyboardHook();
             _globalKeyboardHook.KeyboardPressed += HandleGlobalKeyboardPressEvent;
             _globalKeyboardHook.Hook();
+
+            _globalMouseHook = new GlobalMouseHook();
+            _globalMouseHook.MouseMoved += HandleGlobalMouseMoveEvent;
+            _globalMouseHook.Hook();
         }
 
-        public IEnumerable<Point> YieldLinePoints(int x, int y, int x2, int y2)
+        /// <summary>
+        /// Generates human-like mouse movement using cubic Bezier curves with random control points
+        /// </summary>
+        public IEnumerable<Point> GenerateHumanLikeMousePath(Point start, Point end)
         {
-            int w = x2 - x;
-            int h = y2 - y;
-            int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0;
-            if (w < 0) dx1 = -1;
-            else if (w > 0) dx1 = 1;
-            if (h < 0) dy1 = -1;
-            else if (h > 0) dy1 = 1;
-            if (w < 0) dx2 = -1;
-            else if (w > 0) dx2 = 1;
-            int longest = Math.Abs(w);
-            int shortest = Math.Abs(h);
-            if (!(longest > shortest))
-            {
-                longest = Math.Abs(h);
-                shortest = Math.Abs(w);
-                if (h < 0) dy2 = -1;
-                else if (h > 0) dy2 = 1;
-                dx2 = 0;
-            }
+            // Calculate distance to determine number of steps
+            double distance = Distance(start, end);
+            int steps = Math.Max(20, (int)(distance / 10)); // More steps for longer distances
 
-            int numerator = longest >> 1;
-            for (int i = 0; i <= longest; i++)
+            // Generate random control points for Bezier curve
+            // Control points create the "curve" in the path
+            Point cp1 = GenerateControlPoint(start, end, 0.33);
+            Point cp2 = GenerateControlPoint(start, end, 0.66);
+
+            // Generate points along the Bezier curve with variable speed
+            for (int i = 0; i <= steps; i++)
             {
-                yield return new Point(x, y);
-                numerator += shortest;
-                if (!(numerator < longest))
+                double t = (double)i / steps;
+
+                // Apply easing function for more human-like acceleration/deceleration
+                // Humans tend to start slow, speed up in the middle, and slow down at the end
+                double easedT = EaseInOutCubic(t);
+
+                // Calculate point on cubic Bezier curve
+                Point p = CalculateBezierPoint(easedT, start, cp1, cp2, end);
+
+                // Add small random jitter to make it more natural (human hands aren't perfectly steady)
+                if (i > 0 && i < steps)
                 {
-                    numerator -= longest;
-                    x += dx1;
-                    y += dy1;
+                    p.X += R.Next(-1, 2);
+                    p.Y += R.Next(-1, 2);
                 }
-                else
-                {
-                    x += dx2;
-                    y += dy2;
-                }
+
+                yield return p;
+            }
+        }
+
+        /// <summary>
+        /// Generates a control point for Bezier curve with some randomness
+        /// </summary>
+        private Point GenerateControlPoint(Point start, Point end, double position)
+        {
+            // Linear interpolation between start and end
+            int x = (int)(start.X + (end.X - start.X) * position);
+            int y = (int)(start.Y + (end.Y - start.Y) * position);
+
+            // Add perpendicular offset for curve
+            double angle = Math.Atan2(end.Y - start.Y, end.X - start.X);
+            double perpAngle = angle + Math.PI / 2;
+
+            // Random offset distance (up to 20% of total distance)
+            double offsetDistance = Distance(start, end) * 0.2 * (R.NextDouble() - 0.5);
+
+            x += (int)(Math.Cos(perpAngle) * offsetDistance);
+            y += (int)(Math.Sin(perpAngle) * offsetDistance);
+
+            return new Point(x, y);
+        }
+
+        /// <summary>
+        /// Calculates a point on a cubic Bezier curve
+        /// </summary>
+        private Point CalculateBezierPoint(double t, Point p0, Point p1, Point p2, Point p3)
+        {
+            double u = 1 - t;
+            double tt = t * t;
+            double uu = u * u;
+            double uuu = uu * u;
+            double ttt = tt * t;
+
+            int x = (int)(uuu * p0.X +
+                         3 * uu * t * p1.X +
+                         3 * u * tt * p2.X +
+                         ttt * p3.X);
+
+            int y = (int)(uuu * p0.Y +
+                         3 * uu * t * p1.Y +
+                         3 * u * tt * p2.Y +
+                         ttt * p3.Y);
+
+            return new Point(x, y);
+        }
+
+        /// <summary>
+        /// Easing function for smooth acceleration/deceleration
+        /// </summary>
+        private double EaseInOutCubic(double t)
+        {
+            return t < 0.5
+                ? 4 * t * t * t
+                : 1 - Math.Pow(-2 * t + 2, 3) / 2;
+        }
+
+        /// <summary>
+        /// Updates the status label based on current application state
+        /// </summary>
+        private void UpdateStatusLabel()
+        {
+            if (!_isRunning)
+            {
+                lblStatus.Text = "Stopped";
+            }
+            else if (_isMouseMovementPaused)
+            {
+                long remainingSeconds = IDLE_THRESHOLD_TO_RESUME - IdleTickSeconds;
+                lblStatus.Text = $"Idle for {IdleTickSeconds} sec... (resume in {remainingSeconds}s)";
+            }
+            else
+            {
+                lblStatus.Text = "Working";
             }
         }
 
@@ -108,21 +189,44 @@ namespace DoSomethingEx
 
         private void TmrWorker_Tick(object sender, EventArgs e)
         {
-            //_curIndex++;
-            //if (_curIndex < _points.Count) return;
-
-            //_points.Clear();
-            //_start = _end;
-            //_end = GetPoint(_start, 300);
-            //_points.AddRange(YieldLinePoints(_start.X, _start.Y, _end.X, _end.Y));
-            //_curIndex = 0;
-            if (IdleTickSeconds > 5)
+            // Check if we should resume mouse movement after idle period
+            if (_isMouseMovementPaused && IdleTickSeconds >= IDLE_THRESHOLD_TO_RESUME)
             {
-                mouse_event(MOUSEEVENTF_LEFTUP | MOUSEEVENTF_LEFTDOWN, (uint)_start.X, (uint)_start.Y, 0, 0);
-                Debug.WriteLine("Perform click");
+                _isMouseMovementPaused = false;
+                Debug.WriteLine("Resuming mouse movement");
+            }
+
+            // Only perform mouse actions if not paused
+            if (!_isMouseMovementPaused)
+            {
+                _curIndex++;
+                if (_curIndex < _points.Count)
+                {
+                    // Move mouse along the path
+                    Point targetPoint = _points[_curIndex];
+                    _ignoreNextMouseMove = true;  // Tell hook to ignore this move
+                    SetCursorPos(targetPoint.X, targetPoint.Y);
+                    UpdateStatusLabel();
+                    return;
+                }
+
+                // Generate new path with human-like movement
+                _points.Clear();
+                _start = _end;
+                _end = GetPoint(_start, 300);
+                _points.AddRange(GenerateHumanLikeMousePath(_start, _end));
+                _curIndex = 0;
+
+                // Perform click after extended idle time
+                if (IdleTickSeconds > 5)
+                {
+                    mouse_event(MOUSEEVENTF_LEFTUP | MOUSEEVENTF_LEFTDOWN, (uint)_start.X, (uint)_start.Y, 0, 0);
+                    Debug.WriteLine("Perform click");
+                }
             }
 
             IdleTickSeconds++;
+            UpdateStatusLabel();
         }
 
         private void TmrStop_Tick(object sender, EventArgs e)
@@ -135,27 +239,50 @@ namespace DoSomethingEx
             numStopAfter.Value = Settings.Default.LastTimeout;
             var appIcon = new Icon(File.OpenRead("appIcon.ico"));
             Icon = appIcon;
+            _isRunning = false;
+            UpdateStatusLabel();
         }
 
-        private void CalculateInInterval(int hours)
+        private void CalculateInInterval(int minutes)
         {
-            numStopAfter.Value = hours * 60;
+            numStopAfter.Value = minutes;
         }
 
         private void CreateInMenuItems()
         {
-            const int maxHours = 9;
             var menuItemParent = inToolStripMenuItem;
             Debug.Assert(menuItemParent != null, nameof(menuItemParent) + " != null");
 
-            for (int i = 0; i < maxHours; i++)
+            // Clear existing items to prevent duplicates
+            menuItemParent.DropDownItems.Clear();
+
+            // Create 30-minute interval items up to 12 hours (24 intervals)
+            for (int i = 1; i <= 24; i++)
             {
+                int minutes = i * 30; // Capture value for closure
+                string text;
+
+                if (minutes < 60)
+                {
+                    text = $"In {minutes} min";
+                }
+                else if (minutes % 60 == 0)
+                {
+                    int hours = minutes / 60;
+                    text = $"In {hours} {(hours == 1 ? "hour" : "hours")}";
+                }
+                else
+                {
+                    double hours = minutes / 60.0;
+                    text = $"In {hours:0.#} hours";
+                }
+
                 var newMenuItem = new ToolStripMenuItem
                 {
-                    Text = $"In {i + 1} hours",
-                    Tag = i + 1,
+                    Text = text,
+                    Tag = minutes,
                 };
-                newMenuItem.Click += (o, args) => CalculateInInterval(int.Parse(((ToolStripMenuItem)o).Tag.ToString()));
+                newMenuItem.Click += (o, args) => CalculateInInterval((int)((ToolStripMenuItem)o).Tag);
                 menuItemParent.DropDownItems.Add(newMenuItem);
             }
         }
@@ -170,24 +297,34 @@ namespace DoSomethingEx
         private void CalculateDifference(DateTime to)
         {
             var minutes = (int)(to - DateTime.Now).TotalMinutes;
-            numStopAfter.Text = minutes.ToString();
+            if (minutes < 1) minutes = 1; // Ensure at least 1 minute
+            numStopAfter.Value = minutes;
         }
 
         private void CreateAtMenuItems()
         {
             var now = DateTime.Now;
-            var midnight = new DateTime(now.Year, now.Month, now.Day, 23, 59, 0);
+            var twelveHoursFromNow = now.AddHours(12);
             var interval = TimeSpan.FromMinutes(30);
             var start = RoundUp(now, interval);
             var menuItemParent = atToolStripMenuItem;
-            while (start < midnight)
+
+            // Clear existing items to prevent duplicates
+            menuItemParent.DropDownItems.Clear();
+
+            // Cover next 12 hours, even if it goes to next day
+            while (start <= twelveHoursFromNow)
             {
+                DateTime targetTime = start; // Capture value for closure
                 var newMenuItem = new ToolStripMenuItem
                 {
-                    Text = $"At {start:t}",
-                    Tag = start.ToString(CultureInfo.InvariantCulture),
+                    // Show date if it's a different day
+                    Text = targetTime.Date == now.Date
+                        ? $"At {targetTime:t}"
+                        : $"At {targetTime:t} (tomorrow)",
+                    Tag = targetTime,
                 };
-                newMenuItem.Click += (o, args) => CalculateDifference(DateTime.Parse(((ToolStripMenuItem)o).Tag.ToString()));
+                newMenuItem.Click += (o, args) => CalculateDifference((DateTime)((ToolStripMenuItem)o).Tag);
                 menuItemParent.DropDownItems.Add(newMenuItem);
                 start = start.Add(interval);
             }
@@ -202,12 +339,34 @@ namespace DoSomethingEx
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             _globalKeyboardHook.Unhook();
+            _globalMouseHook.Unhook();
         }
 
         private void HandleGlobalKeyboardPressEvent(object sender, EventArgs arg)
         {
             IdleTickSeconds = 0;
-            Debug.WriteLine("Keyboard touch");
+            _isMouseMovementPaused = true;
+            Debug.WriteLine("Keyboard touch - mouse movement paused");
+            UpdateStatusLabel();
+        }
+
+        private void HandleGlobalMouseMoveEvent(object sender, EventArgs arg)
+        {
+            // Ignore mouse moves when we're not running or when we're the ones moving it
+            if (!_isRunning || _ignoreNextMouseMove)
+            {
+                _ignoreNextMouseMove = false;
+                return;
+            }
+
+            // Only pause if we're currently in working state
+            if (!_isMouseMovementPaused)
+            {
+                IdleTickSeconds = 0;
+                _isMouseMovementPaused = true;
+                Debug.WriteLine("Real mouse movement detected - pausing");
+                UpdateStatusLabel();
+            }
         }
 
         private void Button1_Click(object sender, EventArgs e)
@@ -218,8 +377,13 @@ namespace DoSomethingEx
                 _start = GetPoint(new Point(0, 0), 100);
                 _end = GetPoint(_start, 300);
                 _points.Clear();
-                _points.AddRange(YieldLinePoints(_start.X, _start.Y, _end.X, _end.Y));
+                _points.AddRange(GenerateHumanLikeMousePath(_start, _end));
                 _curIndex = 0;
+                _isMouseMovementPaused = false;
+                IdleTickSeconds = 0;
+                _isRunning = true;
+                _ignoreNextMouseMove = false;
+
                 tmrWorker.Start();
                 WindowState = FormWindowState.Minimized;
                 var ts = TimeSpan.FromMinutes((double) numStopAfter.Value);
@@ -232,12 +396,14 @@ namespace DoSomethingEx
             {
                 tmrWorker.Stop();
                 tmrStop.Stop();
+                _isRunning = false;
                 WindowState = FormWindowState.Normal;
             }
 
             tag = 1 - tag;
             btnStartStop.Tag = tag;
             btnStartStop.Text = tag == 0 ? "Start" : "Stop";
+            UpdateStatusLabel();
         }
     }
 }
