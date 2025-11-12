@@ -168,7 +168,16 @@ namespace DoSomething
         {
             if (_stateManager.IsRunning)
             {
-                _stateManager.Pause();
+                if (_stateManager.IsPaused)
+                {
+                    // Reset idle timer when activity detected while paused
+                    _stateManager.ResetIdleTime();
+                }
+                else
+                {
+                    // Transition to paused state and reset timer
+                    _stateManager.Pause();
+                }
             }
         }
 
@@ -180,9 +189,18 @@ namespace DoSomething
                 return;
             }
 
-            if (_stateManager.IsRunning && !_stateManager.IsPaused)
+            if (_stateManager.IsRunning)
             {
-                _stateManager.Pause();
+                if (_stateManager.IsPaused)
+                {
+                    // Reset idle timer when activity detected while paused
+                    _stateManager.ResetIdleTime();
+                }
+                else
+                {
+                    // Transition to paused state and reset timer
+                    _stateManager.Pause();
+                }
             }
         }
 

@@ -66,6 +66,15 @@ namespace DoSomething
             }
         }
 
+        /// <summary>
+        /// Resets the idle timer without changing state
+        /// Used to reset timer when user activity is detected while already paused
+        /// </summary>
+        public void ResetIdleTime()
+        {
+            _idleSeconds = 0;
+        }
+
         public void IncrementIdleTime()
         {
             _idleSeconds++;
