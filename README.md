@@ -305,12 +305,9 @@ Contributions are welcome! Areas for improvement:
 
 ### Potential Enhancements
 - [ ] Alternative movement strategies (linear, spiral, etc.)
-- [ ] Click pattern randomization
-- [ ] Multi-monitor support
-- [ ] Configurable pause duration
-- [ ] System tray mode (no window)
+- [ ] System tray mode (no window, not sure if is needed)
 - [ ] Activity logging/statistics
-- [ ] Screen capture on specific events
+- [ ] Screen capture on specific events (debatable)
 - [ ] Configuration UI for advanced settings
 
 ### Development Guidelines
