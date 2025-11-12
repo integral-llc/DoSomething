@@ -75,6 +75,34 @@ namespace DoSomething
         private void UpdateStatusLabel()
         {
             lblStatus.Text = _driver.GetStatusText();
+
+            // Update status bar colors based on state
+            var state = _driver.GetCurrentState();
+            switch (state)
+            {
+                case ApplicationState.Stopped:
+                    lblStatus.BackColor = Color.FromArgb(245, 245, 245);
+                    lblStatus.ForeColor = Color.FromArgb(100, 100, 100);
+                    break;
+                case ApplicationState.Working:
+                    lblStatus.BackColor = Color.FromArgb(46, 204, 113);
+                    lblStatus.ForeColor = Color.White;
+                    break;
+                case ApplicationState.Paused:
+                    lblStatus.BackColor = Color.FromArgb(255, 193, 7);
+                    lblStatus.ForeColor = Color.FromArgb(64, 64, 64);
+                    break;
+            }
+        }
+
+        private void btnStartStop_MouseEnter(object sender, EventArgs e)
+        {
+            btnStartStop.BackColor = Color.FromArgb(0, 102, 184);
+        }
+
+        private void btnStartStop_MouseLeave(object sender, EventArgs e)
+        {
+            btnStartStop.BackColor = Color.FromArgb(0, 122, 204);
         }
     }
 }

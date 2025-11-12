@@ -148,6 +148,14 @@ namespace DoSomething
             return _stateManager.GetStatusText();
         }
 
+        /// <summary>
+        /// Gets current application state
+        /// </summary>
+        public ApplicationState GetCurrentState()
+        {
+            return _stateManager.CurrentState;
+        }
+
         private void OnKeyboardActivity(object sender, EventArgs e)
         {
             if (_stateManager.IsRunning)
