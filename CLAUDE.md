@@ -4,78 +4,160 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-DoSomething is a Windows Forms application (.NET Framework 4.8) that simulates mouse movement and clicks to prevent idle/away status. It monitors keyboard activity using a global keyboard hook and performs automated mouse clicks when the system is idle for more than 5 seconds.
+DoSomething is a Windows Forms application (.NET Framework 4.8) that simulates human-like mouse movement and clicks to prevent idle/away status. It monitors both keyboard and mouse activity using global hooks and pauses for 30 seconds when user activity is detected.
 
 ## Build and Run Commands
 
 **Build the project:**
 ```bash
-msbuild DoSomething.sln /p:Configuration=Debug
-# Or for Release build:
-msbuildDoSomething.sln /p:Configuration=Release
+"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" DoSomething.sln //p:Configuration=Debug //v:minimal
 ```
 
 **Run the application:**
 ```bash
 # After building, run from output directory:
 ./bin/Debug/DoSomething.exe
-# Or for Release:
-./bin/Release/DoSomething.exe
 ```
 
 **Clean build artifacts:**
 ```bash
-msbuild DoSomething.sln /t:Clean
+"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" DoSomething.sln //t:Clean
 ```
 
 ## Architecture
 
+This application follows Gang of Four design patterns with proper separation of concerns:
+
+### Design Patterns Used
+
+1. **Strategy Pattern** - Mouse movement algorithms (IMouseMovementStrategy)
+2. **State Pattern** - Application state management (ApplicationStateManager)
+3. **Observer Pattern** - Event-driven architecture for state changes and input detection
+4. **Dependency Injection** - Components are loosely coupled through constructor injection
+
 ### Core Components
 
-1. **MainForm.cs** - Main UI and application logic
-   - Entry point form launched by Program.cs
-   - Implements mouse movement simulation using Win32 API (`SetCursorPos`, `mouse_event`)
-   - Uses Bresenham's line algorithm (`YieldLinePoints`) to generate smooth mouse movement paths
-   - Tracks idle time via `IdleTickSeconds` counter
-   - Performs left-click after 5+ seconds of idle time (MainForm.cs:119-123)
-   - Two timers: `tmrWorker` (periodic tick for idle check) and `tmrStop` (auto-stop after user-configured duration)
+#### 1. MainForm.cs (UI Layer)
+- **Responsibility**: UI event handling and coordination only
+- Initializes all components using dependency injection
+- Delegates business logic to specialized classes
+- Organized into regions: Timer Events, Input Detection, UI Event Handlers, Application Control, Menu Callbacks, State Management
+- ~180 lines (down from 380+ in monolithic version)
 
-2. **GlobalKeyboardHook.cs** - System-wide keyboard monitoring
-   - Low-level keyboard hook implementation using Win32 API
-   - Hooks into Windows message queue via `SetWindowsHookEx` with `WH_KEYBOARD_LL` (constant 13)
-   - Fires `KeyboardPressed` event on any keyboard input system-wide
-   - Resets idle counter in MainForm when keyboard activity detected
-   - Must call `Hook()` to start and `Unhook()` to clean up properly
+#### 2. ApplicationStateManager.cs (State Management)
+- **Pattern**: State Pattern implementation
+- Manages state transitions: Stopped → Working → Paused → Working
+- Provides state-based status text
+- Auto-resumes after 30 seconds of idle time
+- Fires `StateChanged` events for UI updates
 
-3. **Form1.cs** - Unused legacy form
-   - Empty form class, not currently used in the application flow
+#### 3. MouseController.cs (Mouse Operations)
+- **Responsibility**: Orchestrates mouse movement and clicking
+- Uses Win32 API: `SetCursorPos` for movement, `mouse_event` for clicks
+- Generates random target points within screen boundaries
+- Tracks `_shouldIgnoreNextMouseMove` flag to distinguish programmatic vs. user moves
+- Performs clicks after 5 seconds of idle time
+
+#### 4. IMouseMovementStrategy.cs & HumanLikeMouseMovement.cs (Strategy Pattern)
+- **Pattern**: Strategy Pattern for movement algorithms
+- Interface allows swapping movement strategies without changing MouseController
+- `HumanLikeMouseMovement` implementation:
+  - Uses cubic Bezier curves with random control points
+  - Applies ease-in-out cubic easing for natural acceleration/deceleration
+  - Adds micro-jitter (±1 pixel) for realism
+  - Adaptive step count based on distance
+
+#### 5. MenuBuilder.cs (Menu Construction)
+- **Responsibility**: Creates context menu items dynamically
+- `BuildInMenu`: Creates 30-minute intervals up to 12 hours
+- `BuildAtMenu`: Creates time slots for next 12 hours (crosses midnight boundary)
+- Smart formatting: "30 min", "1 hour", "1.5 hours", "At 8:30 PM (tomorrow)"
+- Uses callbacks for decoupled communication with MainForm
+
+#### 6. GlobalKeyboardHook.cs & GlobalMouseHook.cs (Input Hooks)
+- Low-level hooks using Win32 API (`SetWindowsHookEx`)
+- `GlobalKeyboardHook`: Detects any keyboard press system-wide (WH_KEYBOARD_LL = 13)
+- `GlobalMouseHook`: Detects mouse movement system-wide (WH_MOUSE_LL = 14)
+- Must call `Hook()` to initialize and `Unhook()` to clean up
+- Delegates must be stored as fields to prevent garbage collection
+
+#### 7. ApplicationState.cs (Enum)
+- Simple enum: Stopped, Working, Paused
+
+### Data Flow
+
+```
+User Input (Keyboard/Mouse)
+    ↓
+GlobalKeyboardHook/GlobalMouseHook
+    ↓
+MainForm.OnKeyboardActivity / OnMouseActivity
+    ↓
+ApplicationStateManager.Pause()
+    ↓
+StateChanged Event → MainForm.UpdateStatusLabel()
+    ↓
+Timer Tick (every second)
+    ↓
+ApplicationStateManager.IncrementIdleTime()
+    ↓
+(After 30 sec) Auto-resume → Working state
+    ↓
+MouseController.ProcessTick()
+    ↓
+HumanLikeMouseMovement.GeneratePath()
+    ↓
+Win32 SetCursorPos
+```
 
 ### Key Behaviors
 
-- **Idle Detection**: Resets to 0 on any keyboard press via global hook (MainForm.cs:207-211)
-- **Random Point Generation**: `GetPoint()` ensures new mouse positions are at least `minDistance` pixels from previous position
-- **Auto-minimize**: Application minimizes when started (MainForm.cs:224)
-- **Persistent Settings**: Stores last timeout value in `Settings.Default.LastTimeout` (App.config user settings)
-- **Dynamic Menu Generation**: Context menu dynamically generates "In X hours" and "At HH:MM" time options
+- **Pause Duration**: 30 seconds for both keyboard and mouse activity
+- **Context Menus**: Dynamic generation covers next 12 hours (crosses midnight)
+- **Auto-minimize**: Application minimizes when started
+- **Persistent Settings**: Last timeout value saved in user settings
+- **Human-like Movement**: Bezier curves with easing and micro-jitter
 
 ### Win32 API Dependencies
 
-The application relies on P/Invoke calls to user32.dll and kernel32.dll:
-- `SetCursorPos` - Move mouse cursor
-- `mouse_event` - Simulate mouse clicks (flags: MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP)
-- `SetWindowsHookEx` / `UnhookWindowsHookEx` - Global keyboard hook
-- `GetModuleHandle` - Required for keyboard hook setup
+- `SetCursorPos` - Move mouse cursor (MouseController.cs)
+- `mouse_event` - Simulate mouse clicks (MouseController.cs)
+- `SetWindowsHookEx` / `UnhookWindowsHookEx` - Global input hooks
+- `GetModuleHandle` - Required for hook setup
+- `CallNextHookEx` - Pass hook events to next handler
 
-### Namespace Inconsistency
+### Namespace Structure
 
-Note: The project has mixed namespaces:
-- Program.cs and MainForm.cs use `DoSomethingEx`
-- Form1.cs and GlobalKeyboardHook.cs use `DoSomething`
-- Assembly name is `DoSomething` (DoSomething.csproj:10)
+- **DoSomething**: Core business logic classes
+- **DoSomethingEx**: UI layer (MainForm, Program)
+- Assembly name: `DoSomething`
 
 ## Development Notes
 
-- The application requires `appIcon.ico` in the output directory (set to copy on build)
-- Settings persistence uses .NET Framework's built-in user settings system
-- Global keyboard hook requires proper cleanup (`Unhook()` called in `MainForm_FormClosing`)
-- The `_proc` delegate in GlobalKeyboardHook must be stored as a field to prevent garbage collection
+### Adding New Movement Strategies
+
+1. Create a class implementing `IMouseMovementStrategy`
+2. Implement `GeneratePath(Point start, Point end)` method
+3. Inject into MouseController in MainForm constructor
+
+Example:
+```csharp
+var strategy = new LinearMouseMovement(); // or new HumanLikeMouseMovement()
+_mouseController = new MouseController(strategy, _stateManager);
+```
+
+### Important Considerations
+
+- Hook delegates must be stored as instance fields to prevent GC
+- Always call `Unhook()` in `FormClosing` event
+- The `_shouldIgnoreNextMouseMove` flag prevents self-detection loops
+- Icon file must be in output directory (CopyToOutputDirectory = PreserveNewest)
+- Settings are persisted automatically via .NET user settings
+
+## SOLID Principles Applied
+
+- **Single Responsibility**: Each class has one clear purpose
+- **Open/Closed**: Strategy pattern allows extending without modifying
+- **Liskov Substitution**: Any IMouseMovementStrategy implementation works
+- **Interface Segregation**: Small, focused interfaces
+- **Dependency Inversion**: MainForm depends on abstractions, not concrete implementations

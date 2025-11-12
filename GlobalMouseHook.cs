@@ -1,31 +1,15 @@
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace DoSomething
 {
+    /// <summary>
+    /// Provides system-wide mouse input monitoring using low-level hooks
+    /// </summary>
     internal class GlobalMouseHook
     {
-        private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr GetModuleHandle(string lpModuleName);
-
-        private const int WH_MOUSE_LL = 14;
-        private const int WM_MOUSEMOVE = 0x0200;
-
         private IntPtr _hookID = IntPtr.Zero;
-        private LowLevelMouseProc _proc;
+        private NativeMethods.LowLevelMouseProc _proc;
 
         public event EventHandler MouseMoved;
 
@@ -33,7 +17,7 @@ namespace DoSomething
         {
             try
             {
-                if (nCode >= 0 && wParam == (IntPtr)WM_MOUSEMOVE)
+                if (nCode >= 0 && wParam == (IntPtr)NativeMethods.WM_MOUSEMOVE)
                 {
                     MouseMoved?.Invoke(this, EventArgs.Empty);
                 }
@@ -43,7 +27,7 @@ namespace DoSomething
                 // Swallow exceptions to prevent hook from breaking
             }
 
-            return CallNextHookEx(_hookID, nCode, wParam, lParam);
+            return NativeMethods.CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
         public void Hook()
@@ -53,14 +37,18 @@ namespace DoSomething
             {
                 using (ProcessModule curModule = curProcess.MainModule)
                 {
-                    _hookID = SetWindowsHookEx(WH_MOUSE_LL, _proc, GetModuleHandle(curModule.ModuleName), 0);
+                    _hookID = NativeMethods.SetWindowsHookEx(
+                        NativeMethods.WH_MOUSE_LL,
+                        _proc,
+                        NativeMethods.GetModuleHandle(curModule.ModuleName),
+                        0);
                 }
             }
         }
 
         public void Unhook()
         {
-            UnhookWindowsHookEx(_hookID);
+            NativeMethods.UnhookWindowsHookEx(_hookID);
         }
     }
 }
