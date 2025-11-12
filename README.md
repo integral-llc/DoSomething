@@ -15,6 +15,7 @@ A Windows desktop application that prevents idle/away status by simulating natur
 - [Usage](#usage)
 - [Architecture](#architecture)
 - [Building from Source](#building-from-source)
+- [Creating Releases](#creating-releases)
 - [Configuration](#configuration)
 - [Technical Details](#technical-details)
 - [Contributing](#contributing)
@@ -107,18 +108,41 @@ DoSomething follows **Gang of Four design patterns** with clean separation of co
 
 ```
 DoSomething/
-├── ApplicationDriver.cs          # Central orchestrator (business logic)
-├── ApplicationState[Manager].cs  # State management
-├── MouseController.cs            # Mouse operations coordinator
-├── HumanLikeMouseMovement.cs     # Bezier curve movement strategy
-├── IMouseMovementStrategy.cs     # Strategy interface
-├── GlobalKeyboardHook.cs         # System-wide keyboard detection
-├── GlobalMouseHook.cs            # System-wide mouse detection
-├── TaskbarIconManager.cs         # Taskbar overlay management
-├── MenuBuilder.cs                # Context menu generation
-├── NativeMethods.cs              # Win32 API P/Invoke declarations
-├── MainForm.cs                   # Thin UI layer (passive view)
-└── Program.cs                    # Application entry point
+├── .github/
+│   └── workflows/
+│       └── build-and-release.yml     # CI/CD automation
+├── docs/
+│   └── CLAUDE.md                     # Development documentation
+├── src/
+│   └── DoSomething/
+│       ├── Core/                     # Business logic
+│       │   ├── ApplicationDriver.cs  # Central orchestrator
+│       │   ├── ApplicationState.cs   # State enum
+│       │   └── ApplicationStateManager.cs  # State management
+│       ├── Forms/                    # UI layer
+│       │   ├── MainForm.cs           # Passive view (zero business logic)
+│       │   ├── MainForm.Designer.cs
+│       │   └── MainForm.resx
+│       ├── Hooks/                    # Input detection
+│       │   ├── GlobalKeyboardHook.cs # System-wide keyboard detection
+│       │   └── GlobalMouseHook.cs    # System-wide mouse detection
+│       ├── MouseMovement/            # Movement strategies
+│       │   ├── IMouseMovementStrategy.cs      # Strategy interface
+│       │   ├── HumanLikeMouseMovement.cs      # Bezier curve implementation
+│       │   └── MouseController.cs             # Mouse operations coordinator
+│       ├── UI/                       # UI helpers
+│       │   ├── MenuBuilder.cs        # Context menu generation
+│       │   └── TaskbarIconManager.cs # Taskbar overlay management
+│       ├── Win32/                    # Native API
+│       │   └── NativeMethods.cs      # Win32 API P/Invoke (DRY)
+│       ├── Properties/               # Assembly info, resources, settings
+│       ├── Program.cs                # Application entry point
+│       ├── App.config
+│       ├── appIcon.ico
+│       └── DoSomething.csproj
+├── DoSomething.sln
+├── LICENSE
+└── README.md
 ```
 
 ### Key Components
@@ -144,7 +168,7 @@ DoSomething/
 **Using Visual Studio:**
 1. Open `DoSomething.sln`
 2. Build → Build Solution (Ctrl+Shift+B)
-3. Output: `bin\Debug\DoSomething.exe`
+3. Output: `src\DoSomething\bin\Debug\DoSomething.exe`
 
 **Using MSBuild (Command Line):**
 ```bash
@@ -158,6 +182,68 @@ DoSomething/
 **Clean Build:**
 ```bash
 msbuild DoSomething.sln //t:Clean
+```
+
+## Creating Releases
+
+The project uses GitHub Actions for automated builds and releases. Every push to the main/master branch triggers a CI build, and tagged commits create official releases.
+
+### Automated Release Process
+
+When you push a tag starting with `v` (e.g., `v1.0.0`), GitHub Actions will automatically:
+1. Build the Release configuration
+2. Package the application with all required files
+3. Create a ZIP archive (e.g., `DoSomething-v1.0.0.zip`)
+4. Publish a GitHub Release with download links
+5. Generate release notes
+
+### Creating a New Release
+
+**Step 1: Ensure code is ready**
+```bash
+# Make sure all changes are committed
+git status
+
+# Build and test locally
+msbuild DoSomething.sln //p:Configuration=Release
+```
+
+**Step 2: Create and push a version tag**
+```bash
+# Create an annotated tag with semantic versioning
+git tag v1.0.0 -m "Release version 1.0.0"
+
+# Push the tag to GitHub (this triggers the release workflow)
+git push origin v1.0.0
+```
+
+**Step 3: Monitor the build**
+- Visit the [Actions tab](../../actions) on GitHub
+- Wait for the "Build and Release" workflow to complete
+- The release will appear in the [Releases page](../../releases)
+
+### Release Package Contents
+
+Each release ZIP file includes:
+- `DoSomething.exe` - Main executable
+- `DoSomething.exe.config` - Application configuration
+- `appIcon.ico` - Application icon
+- `README.md` - Documentation
+- `LICENSE` - GPL-3.0 license
+
+### Versioning Guidelines
+
+Follow [Semantic Versioning](https://semver.org/) (MAJOR.MINOR.PATCH):
+- **MAJOR** (v2.0.0): Breaking changes or major rewrites
+- **MINOR** (v1.1.0): New features, backwards compatible
+- **PATCH** (v1.0.1): Bug fixes, backwards compatible
+
+### Pre-release Versions
+
+For beta or release candidate versions:
+```bash
+git tag v1.0.0-beta.1 -m "Beta release"
+git push origin v1.0.0-beta.1
 ```
 
 ## Configuration
@@ -181,7 +267,7 @@ public class LinearMouseMovement : IMouseMovementStrategy
     }
 }
 
-// 2. Inject in ApplicationDriver constructor (ApplicationDriver.cs:36)
+// 2. Inject in ApplicationDriver constructor (src/DoSomething/Core/ApplicationDriver.cs:36)
 var movementStrategy = new LinearMouseMovement();
 _mouseController = new MouseController(movementStrategy, _stateManager);
 ```

@@ -41,9 +41,9 @@ jobs:
       with:
         name: DoSomething-Release
         path: |
-          bin/Release/DoSomething.exe
-          bin/Release/DoSomething.exe.config
-          appIcon.ico
+          src/DoSomething/bin/Release/DoSomething.exe
+          src/DoSomething/bin/Release/DoSomething.exe.config
+          src/DoSomething/appIcon.ico
         retention-days: 30
 
   release:
@@ -73,9 +73,9 @@ jobs:
     - name: Create release package
       run: |
         mkdir release-package
-        copy bin\Release\DoSomething.exe release-package\
-        copy bin\Release\DoSomething.exe.config release-package\
-        copy appIcon.ico release-package\
+        copy src\DoSomething\bin\Release\DoSomething.exe release-package\
+        copy src\DoSomething\bin\Release\DoSomething.exe.config release-package\
+        copy src\DoSomething\appIcon.ico release-package\
         copy README.md release-package\
         copy LICENSE release-package\
       shell: cmd

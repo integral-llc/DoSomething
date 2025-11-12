@@ -4,7 +4,10 @@
       "Bash(msbuild:*)",
       "Bash(where:*)",
       "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe\" DoSomething.sln /p:Configuration=Debug /v:minimal)",
-      "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe\" DoSomething.sln //p:Configuration=Debug //v:minimal)"
+      "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe\" DoSomething.sln //p:Configuration=Debug //v:minimal)",
+      "Bash(git mv:*)",
+      "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe\" DoSomething.sln /p:Configuration=Release /v:minimal)",
+      "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe\" DoSomething.sln //p:Configuration=Release //v:minimal)"
     ],
     "deny": [],
     "ask": []

@@ -65,26 +65,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationDriver.cs" />
-    <Compile Include="ApplicationState.cs" />
-    <Compile Include="ApplicationStateManager.cs" />
-    <Compile Include="GlobalKeyboardHook.cs" />
-    <Compile Include="GlobalMouseHook.cs" />
-    <Compile Include="HumanLikeMouseMovement.cs" />
-    <Compile Include="IMouseMovementStrategy.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="Core\ApplicationDriver.cs" />
+    <Compile Include="Core\ApplicationState.cs" />
+    <Compile Include="Core\ApplicationStateManager.cs" />
+    <Compile Include="Hooks\GlobalKeyboardHook.cs" />
+    <Compile Include="Hooks\GlobalMouseHook.cs" />
+    <Compile Include="MouseMovement\HumanLikeMouseMovement.cs" />
+    <Compile Include="MouseMovement\IMouseMovementStrategy.cs" />
+    <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MenuBuilder.cs" />
-    <Compile Include="MouseController.cs" />
-    <Compile Include="NativeMethods.cs" />
+    <Compile Include="UI\MenuBuilder.cs" />
+    <Compile Include="MouseMovement\MouseController.cs" />
+    <Compile Include="Win32\NativeMethods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TaskbarIconManager.cs" />
-    <EmbeddedResource Include="MainForm.resx">
+    <Compile Include="UI\TaskbarIconManager.cs" />
+    <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -106,7 +106,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -6,6 +6,45 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 DoSomething is a Windows Forms application (.NET Framework 4.8) that simulates human-like mouse movement and clicks to prevent idle/away status. It monitors both keyboard and mouse activity using global hooks and pauses for 30 seconds when user activity is detected.
 
+## Project Structure
+
+The project follows industry-standard folder organization:
+
+```
+DoSomething/
+├── .github/workflows/         # GitHub Actions CI/CD
+├── docs/                      # Documentation (CLAUDE.md)
+├── src/DoSomething/          # Source code
+│   ├── Core/                 # Business logic
+│   │   ├── ApplicationDriver.cs
+│   │   ├── ApplicationState.cs
+│   │   └── ApplicationStateManager.cs
+│   ├── Forms/                # UI forms
+│   │   ├── MainForm.cs
+│   │   ├── MainForm.Designer.cs
+│   │   └── MainForm.resx
+│   ├── Hooks/                # Input detection
+│   │   ├── GlobalKeyboardHook.cs
+│   │   └── GlobalMouseHook.cs
+│   ├── MouseMovement/        # Movement strategies
+│   │   ├── IMouseMovementStrategy.cs
+│   │   ├── HumanLikeMouseMovement.cs
+│   │   └── MouseController.cs
+│   ├── UI/                   # UI helpers
+│   │   ├── MenuBuilder.cs
+│   │   └── TaskbarIconManager.cs
+│   ├── Win32/                # Native API
+│   │   └── NativeMethods.cs
+│   ├── Properties/           # Assembly info, resources, settings
+│   ├── Program.cs
+│   ├── App.config
+│   ├── appIcon.ico
+│   └── DoSomething.csproj
+├── DoSomething.sln           # Solution file
+├── LICENSE
+└── README.md
+```
+
 ## Build and Run Commands
 
 **Build the project:**
@@ -16,7 +55,7 @@ DoSomething is a Windows Forms application (.NET Framework 4.8) that simulates h
 **Run the application:**
 ```bash
 # After building, run from output directory:
-./bin/Debug/DoSomething.exe
+./src/DoSomething/bin/Debug/DoSomething.exe
 ```
 
 **Clean build artifacts:**
@@ -37,28 +76,38 @@ This application follows Gang of Four design patterns with proper separation of 
 
 ### Core Components
 
-#### 1. MainForm.cs (UI Layer)
+#### 1. Forms/MainForm.cs (UI Layer)
 - **Responsibility**: UI event handling and coordination only
 - Initializes all components using dependency injection
-- Delegates business logic to specialized classes
-- Organized into regions: Timer Events, Input Detection, UI Event Handlers, Application Control, Menu Callbacks, State Management
-- ~180 lines (down from 380+ in monolithic version)
+- Delegates business logic to ApplicationDriver
+- ~80 lines (passive view - zero business logic)
+- Path: `src/DoSomething/Forms/MainForm.cs`
 
-#### 2. ApplicationStateManager.cs (State Management)
+#### 2. Core/ApplicationDriver.cs (Business Logic Orchestrator)
+- **Pattern**: MVP Presenter pattern
+- Owns all business logic, fully testable without UI
+- Manages internal timer (System.Threading.Timer)
+- Commands UI via events (MinimizeWindow, RestoreWindow, UpdateButtonText, SaveTimeout)
+- ~200 lines of pure business logic
+- Path: `src/DoSomething/Core/ApplicationDriver.cs`
+
+#### 3. Core/ApplicationStateManager.cs (State Management)
 - **Pattern**: State Pattern implementation
 - Manages state transitions: Stopped → Working → Paused → Working
 - Provides state-based status text
 - Auto-resumes after 30 seconds of idle time
 - Fires `StateChanged` events for UI updates
+- Path: `src/DoSomething/Core/ApplicationStateManager.cs`
 
-#### 3. MouseController.cs (Mouse Operations)
+#### 4. MouseMovement/MouseController.cs (Mouse Operations)
 - **Responsibility**: Orchestrates mouse movement and clicking
 - Uses Win32 API: `SetCursorPos` for movement, `mouse_event` for clicks
 - Generates random target points within screen boundaries
 - Tracks `_shouldIgnoreNextMouseMove` flag to distinguish programmatic vs. user moves
 - Performs clicks after 5 seconds of idle time
+- Path: `src/DoSomething/MouseMovement/MouseController.cs`
 
-#### 4. IMouseMovementStrategy.cs & HumanLikeMouseMovement.cs (Strategy Pattern)
+#### 5. MouseMovement/IMouseMovementStrategy.cs & HumanLikeMouseMovement.cs (Strategy Pattern)
 - **Pattern**: Strategy Pattern for movement algorithms
 - Interface allows swapping movement strategies without changing MouseController
 - `HumanLikeMouseMovement` implementation:
@@ -66,23 +115,39 @@ This application follows Gang of Four design patterns with proper separation of 
   - Applies ease-in-out cubic easing for natural acceleration/deceleration
   - Adds micro-jitter (±1 pixel) for realism
   - Adaptive step count based on distance
+- Path: `src/DoSomething/MouseMovement/`
 
-#### 5. MenuBuilder.cs (Menu Construction)
+#### 6. UI/MenuBuilder.cs (Menu Construction)
 - **Responsibility**: Creates context menu items dynamically
 - `BuildInMenu`: Creates 30-minute intervals up to 12 hours
 - `BuildAtMenu`: Creates time slots for next 12 hours (crosses midnight boundary)
 - Smart formatting: "30 min", "1 hour", "1.5 hours", "At 8:30 PM (tomorrow)"
 - Uses callbacks for decoupled communication with MainForm
+- Path: `src/DoSomething/UI/MenuBuilder.cs`
 
-#### 6. GlobalKeyboardHook.cs & GlobalMouseHook.cs (Input Hooks)
+#### 7. UI/TaskbarIconManager.cs (Taskbar Integration)
+- **Responsibility**: Manages taskbar icon overlays
+- Uses ITaskbarList3 COM interface (Windows 7+)
+- Creates colored overlay icons: green (Working), orange (Paused), none (Stopped)
+- Path: `src/DoSomething/UI/TaskbarIconManager.cs`
+
+#### 8. Hooks/GlobalKeyboardHook.cs & GlobalMouseHook.cs (Input Hooks)
 - Low-level hooks using Win32 API (`SetWindowsHookEx`)
 - `GlobalKeyboardHook`: Detects any keyboard press system-wide (WH_KEYBOARD_LL = 13)
 - `GlobalMouseHook`: Detects mouse movement system-wide (WH_MOUSE_LL = 14)
 - Must call `Hook()` to initialize and `Unhook()` to clean up
 - Delegates must be stored as fields to prevent garbage collection
+- Path: `src/DoSomething/Hooks/`
 
-#### 7. ApplicationState.cs (Enum)
+#### 9. Win32/NativeMethods.cs (Win32 API)
+- **Responsibility**: Centralized Win32 API declarations (DRY principle)
+- All P/Invoke declarations in one place
+- Includes: SetWindowsHookEx, SetCursorPos, mouse_event, ITaskbarList3
+- Path: `src/DoSomething/Win32/NativeMethods.cs`
+
+#### 10. Core/ApplicationState.cs (Enum)
 - Simple enum: Stopped, Working, Paused
+- Path: `src/DoSomething/Core/ApplicationState.cs`
 
 ### Data Flow
 
