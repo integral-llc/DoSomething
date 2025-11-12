@@ -41,7 +41,10 @@ namespace DoSomething
             this.btnIn = new System.Windows.Forms.Button();
             this.btnAt = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
+            this.numPauseDuration = new System.Windows.Forms.NumericUpDown();
+            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numPauseDuration)).BeginInit();
             this.contextMenuStripIn.SuspendLayout();
             this.contextMenuStripAt.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -192,12 +195,51 @@ namespace DoSomething
             this.label2.TabIndex = 6;
             this.label2.Text = "Quick Presets:";
             //
+            // numPauseDuration
+            //
+            this.numPauseDuration.BackColor = System.Drawing.Color.White;
+            this.numPauseDuration.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numPauseDuration.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.numPauseDuration.Location = new System.Drawing.Point(220, 25);
+            this.numPauseDuration.Maximum = new decimal(new int[] {
+            300,
+            0,
+            0,
+            0});
+            this.numPauseDuration.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.numPauseDuration.Name = "numPauseDuration";
+            this.numPauseDuration.Size = new System.Drawing.Size(60, 25);
+            this.numPauseDuration.TabIndex = 7;
+            this.numPauseDuration.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.numPauseDuration.Value = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            //
+            // label3
+            //
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.label3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.label3.Location = new System.Drawing.Point(30, 28);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(176, 15);
+            this.label3.TabIndex = 8;
+            this.label3.Text = "Pause on Activity (seconds):";
+            //
             // MainForm
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(450, 185);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.numPauseDuration);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.btnAt);
             this.Controls.Add(this.btnIn);
@@ -214,6 +256,7 @@ namespace DoSomething
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numPauseDuration)).EndInit();
             this.contextMenuStripIn.ResumeLayout(false);
             this.contextMenuStripAt.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
@@ -236,6 +279,8 @@ namespace DoSomething
         private System.Windows.Forms.Button btnIn;
         private System.Windows.Forms.Button btnAt;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.NumericUpDown numPauseDuration;
+        private System.Windows.Forms.Label label3;
     }
 }
 

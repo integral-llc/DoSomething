@@ -34,5 +34,17 @@ namespace DoSomething.Properties {
                 this["LastTimeout"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int LastPauseDuration {
+            get {
+                return ((int)(this["LastPauseDuration"]));
+            }
+            set {
+                this["LastPauseDuration"] = value;
+            }
+        }
     }
 }

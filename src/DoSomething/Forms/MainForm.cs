@@ -15,8 +15,10 @@ namespace DoSomething
         {
             InitializeComponent();
 
-            // Initialize business logic driver
-            _driver = new ApplicationDriver();
+            // Initialize business logic driver with saved pause duration
+            int pauseDuration = Settings.Default.LastPauseDuration;
+            if (pauseDuration < 5) pauseDuration = 30; // Default fallback
+            _driver = new ApplicationDriver(pauseDuration);
 
             // Initialize menu builder with callbacks
             _menuBuilder = new MenuBuilder(OnInIntervalSelected, OnAtTimeSelected);
@@ -60,6 +62,7 @@ namespace DoSomething
         {
             // Load settings
             numStopAfter.Value = Settings.Default.LastTimeout;
+            numPauseDuration.Value = Settings.Default.LastPauseDuration;
 
             // Set icon
             Icon = new Icon(File.OpenRead("appIcon.ico"));
@@ -69,6 +72,15 @@ namespace DoSomething
 
             // Initial UI update
             UpdateStatusLabel();
+
+            // Subscribe to pause duration changes
+            numPauseDuration.ValueChanged += (s, ev) =>
+            {
+                int pauseDuration = (int)numPauseDuration.Value;
+                _driver.SetPauseDuration(pauseDuration);
+                Settings.Default.LastPauseDuration = pauseDuration;
+                Settings.Default.Save();
+            };
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
