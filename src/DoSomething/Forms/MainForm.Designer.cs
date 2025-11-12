@@ -31,12 +31,19 @@ namespace DoSomething
             this.components = new System.ComponentModel.Container();
             this.btnStartStop = new System.Windows.Forms.Button();
             this.numStopAfter = new System.Windows.Forms.NumericUpDown();
+            this.contextMenuStripIn = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.contextMenuStripAt = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.inToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.atToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
+            this.btnIn = new System.Windows.Forms.Button();
+            this.btnAt = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).BeginInit();
+            this.contextMenuStripIn.SuspendLayout();
+            this.contextMenuStripAt.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             //
@@ -85,6 +92,18 @@ namespace DoSomething
             0,
             0});
             //
+            // contextMenuStripIn
+            //
+            this.contextMenuStripIn.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenuStripIn.Name = "contextMenuStripIn";
+            this.contextMenuStripIn.Size = new System.Drawing.Size(181, 26);
+            //
+            // contextMenuStripAt
+            //
+            this.contextMenuStripAt.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenuStripAt.Name = "contextMenuStripAt";
+            this.contextMenuStripAt.Size = new System.Drawing.Size(181, 26);
+            //
             // contextMenuStrip1
             //
             this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
@@ -132,12 +151,56 @@ namespace DoSomething
             this.lblStatus.Text = "Stopped";
             this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             //
+            // btnIn
+            //
+            this.btnIn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(230)))), ((int)(((byte)(230)))));
+            this.btnIn.FlatAppearance.BorderSize = 0;
+            this.btnIn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnIn.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.btnIn.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.btnIn.Location = new System.Drawing.Point(180, 97);
+            this.btnIn.Name = "btnIn";
+            this.btnIn.Size = new System.Drawing.Size(45, 28);
+            this.btnIn.TabIndex = 4;
+            this.btnIn.Text = "In ▼";
+            this.btnIn.UseVisualStyleBackColor = false;
+            this.btnIn.Click += new System.EventHandler(this.btnIn_Click);
+            //
+            // btnAt
+            //
+            this.btnAt.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(230)))), ((int)(((byte)(230)))));
+            this.btnAt.FlatAppearance.BorderSize = 0;
+            this.btnAt.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAt.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.btnAt.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.btnAt.Location = new System.Drawing.Point(235, 97);
+            this.btnAt.Name = "btnAt";
+            this.btnAt.Size = new System.Drawing.Size(45, 28);
+            this.btnAt.TabIndex = 5;
+            this.btnAt.Text = "At ▼";
+            this.btnAt.UseVisualStyleBackColor = false;
+            this.btnAt.Click += new System.EventHandler(this.btnAt_Click);
+            //
+            // label2
+            //
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(120)))), ((int)(((byte)(120)))));
+            this.label2.Location = new System.Drawing.Point(30, 103);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(85, 15);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Quick Presets:";
+            //
             // MainForm
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(450, 185);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.btnAt);
+            this.Controls.Add(this.btnIn);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.numStopAfter);
@@ -151,6 +214,8 @@ namespace DoSomething
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).EndInit();
+            this.contextMenuStripIn.ResumeLayout(false);
+            this.contextMenuStripAt.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -162,10 +227,15 @@ namespace DoSomething
         private System.Windows.Forms.Button btnStartStop;
         private System.Windows.Forms.NumericUpDown numStopAfter;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStripIn;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStripAt;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem inToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem atToolStripMenuItem;
         private System.Windows.Forms.Label lblStatus;
+        private System.Windows.Forms.Button btnIn;
+        private System.Windows.Forms.Button btnAt;
+        private System.Windows.Forms.Label label2;
     }
 }
 

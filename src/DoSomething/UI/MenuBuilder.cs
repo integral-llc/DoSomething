@@ -38,6 +38,26 @@ namespace DoSomething
             }
         }
 
+        public void BuildInMenu(ContextMenuStrip contextMenu)
+        {
+            contextMenu.Items.Clear();
+
+            // Create 30-minute intervals up to 12 hours (24 intervals)
+            for (int i = 1; i <= 24; i++)
+            {
+                int minutes = i * 30;
+                string text = FormatTimeInterval(minutes);
+
+                var menuItem = new ToolStripMenuItem
+                {
+                    Text = text,
+                    Tag = minutes
+                };
+                menuItem.Click += (s, e) => _onInIntervalSelected((int)((ToolStripMenuItem)s).Tag);
+                contextMenu.Items.Add(menuItem);
+            }
+        }
+
         public void BuildAtMenu(ToolStripMenuItem parentMenuItem)
         {
             parentMenuItem.DropDownItems.Clear();
@@ -61,6 +81,34 @@ namespace DoSomething
                 };
                 menuItem.Click += (s, e) => _onAtTimeSelected((DateTime)((ToolStripMenuItem)s).Tag);
                 parentMenuItem.DropDownItems.Add(menuItem);
+
+                start = start.Add(interval);
+            }
+        }
+
+        public void BuildAtMenu(ContextMenuStrip contextMenu)
+        {
+            contextMenu.Items.Clear();
+
+            var now = DateTime.Now;
+            var twelveHoursFromNow = now.AddHours(12);
+            var interval = TimeSpan.FromMinutes(30);
+            var start = RoundUpToInterval(now, interval);
+
+            while (start <= twelveHoursFromNow)
+            {
+                DateTime targetTime = start;
+                string text = targetTime.Date == now.Date
+                    ? $"At {targetTime:t}"
+                    : $"At {targetTime:t} (tomorrow)";
+
+                var menuItem = new ToolStripMenuItem
+                {
+                    Text = text,
+                    Tag = targetTime
+                };
+                menuItem.Click += (s, e) => _onAtTimeSelected((DateTime)((ToolStripMenuItem)s).Tag);
+                contextMenu.Items.Add(menuItem);
 
                 start = start.Add(interval);
             }

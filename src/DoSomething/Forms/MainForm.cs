@@ -21,12 +21,39 @@ namespace DoSomething
             // Initialize menu builder with callbacks
             _menuBuilder = new MenuBuilder(OnInIntervalSelected, OnAtTimeSelected);
 
-            // Subscribe to ALL driver events
+            // Subscribe to ALL driver events (thread-safe)
             _driver.StatusTextChanged += (s, text) => UpdateStatusLabel();
-            _driver.MinimizeWindow += (s, e) => WindowState = FormWindowState.Minimized;
-            _driver.RestoreWindow += (s, e) => WindowState = FormWindowState.Normal;
-            _driver.UpdateButtonText += (s, text) => btnStartStop.Text = text;
-            _driver.SaveTimeout += (s, timeout) => { Settings.Default.LastTimeout = timeout; Settings.Default.Save(); };
+            _driver.MinimizeWindow += (s, e) =>
+            {
+                if (InvokeRequired)
+                    Invoke(new Action(() => WindowState = FormWindowState.Minimized));
+                else
+                    WindowState = FormWindowState.Minimized;
+            };
+            _driver.RestoreWindow += (s, e) =>
+            {
+                if (InvokeRequired)
+                    Invoke(new Action(() => WindowState = FormWindowState.Normal));
+                else
+                    WindowState = FormWindowState.Normal;
+            };
+            _driver.UpdateButtonText += (s, text) =>
+            {
+                if (InvokeRequired)
+                    Invoke(new Action(() => btnStartStop.Text = text));
+                else
+                    btnStartStop.Text = text;
+            };
+            _driver.SaveTimeout += (s, timeout) =>
+            {
+                if (InvokeRequired)
+                    Invoke(new Action(() => { Settings.Default.LastTimeout = timeout; Settings.Default.Save(); }));
+                else
+                {
+                    Settings.Default.LastTimeout = timeout;
+                    Settings.Default.Save();
+                }
+            };
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -74,6 +101,13 @@ namespace DoSomething
 
         private void UpdateStatusLabel()
         {
+            // Check if we need to invoke on the UI thread
+            if (lblStatus.InvokeRequired)
+            {
+                lblStatus.Invoke(new Action(UpdateStatusLabel));
+                return;
+            }
+
             lblStatus.Text = _driver.GetStatusText();
 
             // Update status bar colors based on state
@@ -103,6 +137,24 @@ namespace DoSomething
         private void btnStartStop_MouseLeave(object sender, EventArgs e)
         {
             btnStartStop.BackColor = Color.FromArgb(0, 122, 204);
+        }
+
+        private void btnIn_Click(object sender, EventArgs e)
+        {
+            // Build the In menu
+            _menuBuilder.BuildInMenu(contextMenuStripIn);
+
+            // Show the context menu at the button's location
+            contextMenuStripIn.Show(btnIn, new Point(0, btnIn.Height));
+        }
+
+        private void btnAt_Click(object sender, EventArgs e)
+        {
+            // Build the At menu
+            _menuBuilder.BuildAtMenu(contextMenuStripAt);
+
+            // Show the context menu at the button's location
+            contextMenuStripAt.Show(btnAt, new Point(0, btnAt.Height));
         }
     }
 }
