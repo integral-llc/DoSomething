@@ -17,7 +17,11 @@ namespace DoSomething
 
             // Initialize business logic driver with saved pause duration
             int pauseDuration = Settings.Default.LastPauseDuration;
-            if (pauseDuration < 5) pauseDuration = 30; // Default fallback
+            // Use control's minimum value if saved value is invalid
+            if (pauseDuration < numPauseDuration.Minimum)
+            {
+                pauseDuration = (int)numPauseDuration.Value; // Use default value from control
+            }
             _driver = new ApplicationDriver(pauseDuration);
 
             // Initialize menu builder with callbacks

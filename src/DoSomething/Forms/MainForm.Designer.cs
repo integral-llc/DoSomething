@@ -45,8 +45,6 @@ namespace DoSomething
             this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPauseDuration)).BeginInit();
-            this.contextMenuStripIn.SuspendLayout();
-            this.contextMenuStripAt.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             //
@@ -257,8 +255,6 @@ namespace DoSomething
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPauseDuration)).EndInit();
-            this.contextMenuStripIn.ResumeLayout(false);
-            this.contextMenuStripAt.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
