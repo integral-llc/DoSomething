@@ -29,10 +29,10 @@ namespace DoSomething
         public event EventHandler<string> UpdateButtonText;
         public event EventHandler<int> SaveTimeout;
 
-        public ApplicationDriver()
+        public ApplicationDriver(int pauseDurationSeconds = 30)
         {
             // Initialize core components
-            _stateManager = new ApplicationStateManager();
+            _stateManager = new ApplicationStateManager(pauseDurationSeconds);
             var movementStrategy = new HumanLikeMouseMovement();
             _mouseController = new MouseController(movementStrategy, _stateManager);
 
@@ -47,6 +47,14 @@ namespace DoSomething
 
             // Subscribe to state changes
             _stateManager.StateChanged += OnStateChanged;
+        }
+
+        /// <summary>
+        /// Updates the pause duration setting
+        /// </summary>
+        public void SetPauseDuration(int seconds)
+        {
+            _stateManager.SetPauseDuration(seconds);
         }
 
         /// <summary>
@@ -146,6 +154,14 @@ namespace DoSomething
         public string GetStatusText()
         {
             return _stateManager.GetStatusText();
+        }
+
+        /// <summary>
+        /// Gets current application state
+        /// </summary>
+        public ApplicationState GetCurrentState()
+        {
+            return _stateManager.CurrentState;
         }
 
         private void OnKeyboardActivity(object sender, EventArgs e)

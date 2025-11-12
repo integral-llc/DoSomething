@@ -9,7 +9,7 @@ namespace DoSomething
     {
         private ApplicationState _currentState;
         private long _idleSeconds;
-        private const int IDLE_THRESHOLD_SECONDS = 30;
+        private int _idleThresholdSeconds;
 
         public event EventHandler<ApplicationState> StateChanged;
 
@@ -30,10 +30,19 @@ namespace DoSomething
         public bool IsRunning => _currentState != ApplicationState.Stopped;
         public bool IsPaused => _currentState == ApplicationState.Paused;
 
-        public ApplicationStateManager()
+        public ApplicationStateManager(int pauseDurationSeconds = 30)
         {
             _currentState = ApplicationState.Stopped;
             _idleSeconds = 0;
+            _idleThresholdSeconds = pauseDurationSeconds;
+        }
+
+        /// <summary>
+        /// Updates the pause duration (idle threshold in seconds)
+        /// </summary>
+        public void SetPauseDuration(int seconds)
+        {
+            _idleThresholdSeconds = seconds;
         }
 
         public void Start()
@@ -62,7 +71,7 @@ namespace DoSomething
             _idleSeconds++;
 
             // Auto-resume after idle threshold
-            if (CurrentState == ApplicationState.Paused && _idleSeconds >= IDLE_THRESHOLD_SECONDS)
+            if (CurrentState == ApplicationState.Paused && _idleSeconds >= _idleThresholdSeconds)
             {
                 CurrentState = ApplicationState.Working;
             }
@@ -76,7 +85,7 @@ namespace DoSomething
                     return "Stopped";
 
                 case ApplicationState.Paused:
-                    long remainingSeconds = IDLE_THRESHOLD_SECONDS - _idleSeconds;
+                    long remainingSeconds = _idleThresholdSeconds - _idleSeconds;
                     return $"Idle for {_idleSeconds} sec... (resume in {remainingSeconds}s)";
 
                 case ApplicationState.Working:

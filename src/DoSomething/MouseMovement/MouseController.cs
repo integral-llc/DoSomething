@@ -11,7 +11,8 @@ namespace DoSomething
     /// </summary>
     public class MouseController
     {
-        private const int CLICK_AFTER_SECONDS = 5;
+        private const int MIN_CLICK_INTERVAL_SECONDS = 3;
+        private const int MAX_CLICK_INTERVAL_SECONDS = 8;
 
         private readonly IMouseMovementStrategy _movementStrategy;
         private readonly ApplicationStateManager _stateManager;
@@ -21,6 +22,7 @@ namespace DoSomething
         private int _currentPathIndex;
         private Point _currentTarget;
         private bool _shouldIgnoreNextMouseMove;
+        private int _nextClickAfterSeconds;
 
         public bool ShouldIgnoreNextMouseMove
         {
@@ -39,6 +41,15 @@ namespace DoSomething
             _random = new Random();
             _currentPath = new List<Point>();
             _currentPathIndex = 0;
+            _nextClickAfterSeconds = GenerateRandomClickInterval();
+        }
+
+        /// <summary>
+        /// Generates a random click interval between MIN and MAX seconds for human-like behavior
+        /// </summary>
+        private int GenerateRandomClickInterval()
+        {
+            return _random.Next(MIN_CLICK_INTERVAL_SECONDS, MAX_CLICK_INTERVAL_SECONDS + 1);
         }
 
         public void Initialize()
@@ -73,10 +84,12 @@ namespace DoSomething
                 _currentTarget = newTarget;
                 _currentPathIndex = 0;
 
-                // Perform click if idle long enough
-                if (_stateManager.IdleSeconds > CLICK_AFTER_SECONDS)
+                // Perform click if idle long enough (randomized interval)
+                if (_stateManager.IdleSeconds > _nextClickAfterSeconds)
                 {
                     PerformClick(_currentTarget);
+                    // Generate new random interval for next click
+                    _nextClickAfterSeconds = GenerateRandomClickInterval();
                 }
             }
         }
