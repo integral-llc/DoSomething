@@ -1,4 +1,4 @@
-namespace DoSomethingEx
+namespace DoSomething
 {
     partial class MainForm
     {
@@ -30,13 +30,11 @@ namespace DoSomethingEx
         {
             this.components = new System.ComponentModel.Container();
             this.btnStartStop = new System.Windows.Forms.Button();
-            this.tmrWorker = new System.Windows.Forms.Timer(this.components);
             this.numStopAfter = new System.Windows.Forms.NumericUpDown();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.inToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.atToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
-            this.tmrStop = new System.Windows.Forms.Timer(this.components);
             this.lblStatus = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numStopAfter)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
@@ -51,13 +49,8 @@ namespace DoSomethingEx
             this.btnStartStop.Tag = "0";
             this.btnStartStop.Text = "Start";
             this.btnStartStop.UseVisualStyleBackColor = true;
-            this.btnStartStop.Click += new System.EventHandler(this.Button1_Click);
-            // 
-            // tmrWorker
-            // 
-            this.tmrWorker.Interval = 1000;
-            this.tmrWorker.Tick += new System.EventHandler(this.TmrWorker_Tick);
-            // 
+            this.btnStartStop.Click += new System.EventHandler(this.btnStartStop_Click);
+            //
             // numStopAfter
             // 
             this.numStopAfter.ContextMenuStrip = this.contextMenuStrip1;
@@ -111,11 +104,7 @@ namespace DoSomethingEx
             this.label1.Size = new System.Drawing.Size(79, 13);
             this.label1.TabIndex = 2;
             this.label1.Text = "Stop After (min)";
-            // 
-            // tmrStop
-            // 
-            this.tmrStop.Tick += new System.EventHandler(this.TmrStop_Tick);
-            // 
+            //
             // lblStatus
             // 
             this.lblStatus.AutoSize = true;
@@ -151,10 +140,8 @@ namespace DoSomethingEx
         #endregion
 
         private System.Windows.Forms.Button btnStartStop;
-        private System.Windows.Forms.Timer tmrWorker;
         private System.Windows.Forms.NumericUpDown numStopAfter;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Timer tmrStop;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem inToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem atToolStripMenuItem;

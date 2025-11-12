@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationDriver.cs" />
     <Compile Include="ApplicationState.cs" />
     <Compile Include="ApplicationStateManager.cs" />
     <Compile Include="GlobalKeyboardHook.cs" />
