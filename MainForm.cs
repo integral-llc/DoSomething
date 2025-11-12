@@ -14,6 +14,7 @@ namespace DoSomethingEx
         private readonly MenuBuilder _menuBuilder;
         private readonly GlobalKeyboardHook _globalKeyboardHook;
         private readonly GlobalMouseHook _globalMouseHook;
+        private TaskbarIconManager _taskbarIconManager;
 
         public MainForm()
         {
@@ -43,6 +44,11 @@ namespace DoSomethingEx
             numStopAfter.Value = Settings.Default.LastTimeout;
             var appIcon = new Icon(File.OpenRead("appIcon.ico"));
             Icon = appIcon;
+
+            // Initialize taskbar icon manager (requires window handle)
+            _taskbarIconManager = new TaskbarIconManager(Handle);
+            _taskbarIconManager.UpdateIcon(_stateManager.CurrentState);
+
             UpdateStatusLabel();
         }
 
@@ -50,6 +56,7 @@ namespace DoSomethingEx
         {
             _globalKeyboardHook.Unhook();
             _globalMouseHook.Unhook();
+            _taskbarIconManager?.Dispose();
         }
 
         #region Timer Events
@@ -171,6 +178,7 @@ namespace DoSomethingEx
         private void OnStateChanged(object sender, ApplicationState newState)
         {
             UpdateStatusLabel();
+            _taskbarIconManager?.UpdateIcon(newState);
         }
 
         private void UpdateStatusLabel()
